@@ -168,15 +168,18 @@ det = np.prod(np.diag(B)) * sign
 print(f"\nОпределитель: {det:.2f}")
 ```
 
-### ***Задача 5***: 
+### ***Задача 5***: Решение системы линейных уравнений
+x - 2y +  z = -1
+ 2x -  y - 4z =  7
+  x +  y - 2z =  5
 
 
-Графики:  
+Ответ:  <img width="600" height="600" alt="image" src="https://github.com/user-attachments/assets/571f4a2c-fb15-4edf-910a-90bd05dc63ba" />
+
 
 
 Исходный код:  
 ```python
-# file: task_05_system_solution_simplified.py
 import numpy as np
 
 print("=== Задача 5: Система линейных уравнений ===")
@@ -249,26 +252,23 @@ print("\n=== в) МАТРИЧНЫЙ МЕТОД ===")
 A_inv = np.linalg.inv(A)
 solution = A_inv @ b
 print(f"Решение (матричный): x={solution[0]:.3f}, y={solution[1]:.3f}, z={solution[2]:.3f}")
-
-# === ПРОВЕРКА ===
-print("\n=== ПРОВЕРКА ===")
-check = A @ solution
-print(f"A·X = {check}")
-print(f"b   = {b}")
-print(f"Совпадает? {np.allclose(check, b)}")
 ```
 
-### ***Задача 6***: 
+### ***Задача 6***: Разложение вектора d по базису a b c
+d = (-2, 11, -2)
+a = (1, 2, -3)
+b = (3, -3, -2)
+c = (-1, 4, 2)
 
-Графики:  
+Ответ:  <img width="600" height="600" alt="image" src="https://github.com/user-attachments/assets/0d24ec49-bc4c-49dd-8b1e-bb3913c8a56f" />
+
 
 
 Исходный код:  
 ```python
-# file: task_08_vector_decomposition_simplified.py
 import numpy as np
 
-print("=== Задача 8: Разложение вектора по базису ===")
+print("=== Задача 6: Разложение вектора по базису ===")
 
 # Исходные векторы
 d = np.array([-2, 11, -2])
@@ -300,27 +300,21 @@ if abs(det_A) > 1e-10:
 
     # Формула разложения
     print(f"\nРазложение: d = ({coords[0]:.3f})a + ({coords[1]:.3f})b + ({coords[2]:.3f})c")
-
-    # Проверка
-    check = coords[0] * a + coords[1] * b + coords[2] * c
-    print(f"\nПроверка: {check}")
-    print(f"Совпадает с исходным d? {np.allclose(check, d)}")
-else:
-    print("\nВекторы линейно зависимы и не образуют базис. Разложение невозможно.")
 ```
 
-### ***Задача 7***: 
+### ***Задача 7***: Найти cобственные числа и векторы матрицы A
+<img width="600" height="600" alt="image" src="https://github.com/user-attachments/assets/93024dd2-ee66-4bae-853e-22735b072386" />
 
 
-Графики:  
+Ответ: <img width="600" height="600" alt="image" src="https://github.com/user-attachments/assets/be6ea077-56fe-4c59-b172-bb45ca235451" />
+  
 
 
 Исходный код:  
 ```python
-# file: task_09_eigen_problem_simplified.py
 import numpy as np
 
-print("=== Задача 9: Собственные числа и векторы матрицы A ===")
+print("=== Задача 7: Собственные числа и векторы матрицы A ===")
 
 # Определение матрицы
 A = np.array([
@@ -345,10 +339,6 @@ for i in range(len(eigenvalues)):
     print(f"Для λ{i+1} = {eigenvalues[i].real:.4f}:")
     print(f"  [{vec[0].real:.4f}, {vec[1].real:.4f}, {vec[2].real:.4f}]^T")
     
-    # Проверка
-    Av = A @ vec
-    lv = eigenvalues[i] * vec
-    print(f"  Проверка (A·v == λ·v): {np.allclose(Av, lv)}")
 
 # Дополнительная информация
 print("\n=== ХАРАКТЕРИСТИЧЕСКИЙ МНОГОЧЛЕН ===")
