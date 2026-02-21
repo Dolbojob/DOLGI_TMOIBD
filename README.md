@@ -22,24 +22,19 @@ result = numerator / denominator
 print(f"\nРезультат деления: {result.real:.3f} {'+' if result.imag >= 0 else '-'} {abs(result.imag):.3f}i")
 
 ```
-### ***Кейс 2***: Обработка результатов анкетирования
-Набор данных: [скачать набор данных](cases/case2/Результаты анкетирования.csv)  
+### ***Задача 2***: Вычислить: sqrt((1 + √3i))^6 
 
-В кейсе анализируется результаты актетирования из файла `Результаты анкетирования.csv`. Строятся три типа графиков:
-- **Scatter plot**: Диаграмма рассеяния ответов на первый вопрос.
-- **Bar plot**: Столбчатая диаграмма среднего результата при ответе на первый вопрос.
-- **Box plot**: Коробчатая диаграмма распределения ответов на первый вопрос.
 
-Графики:  
+Ответ: <img width="600" height="600" alt="image" src="https://github.com/user-attachments/assets/6956285e-d515-49e4-993b-14e84080d349" />
+ 
 
 Исходный код:  
 ```python
-# file: task_02_complex_trigonometric_simplified.py
 import numpy as np
 import matplotlib.pyplot as plt
 
 print("=== Задача 2: Корень шестой степени в тригонометрической форме ===")
-print("Вычислить: ∛(1 + √3i) (на самом деле корень 6-й степени)")
+print("Вычислить: sqrt((1 + √3i))^6")
 
 # Исходное комплексное число
 z = 1 + 1j * np.sqrt(3)
@@ -59,71 +54,18 @@ print(f"Модуль: {r:.2f}, Аргумент: {np.degrees(theta):.2f}°")
 print(f"\nКорень {n}-й степени:")
 print(f"Модуль корня: {r_root:.4f}")
 
-# Визуализация
-plt.figure(figsize=(8, 8))
-ax = plt.gca()
-ax.axhline(y=0, color='k', linestyle='-', alpha=0.3)
-ax.axvline(x=0, color='k', linestyle='-', alpha=0.3)
-
-# Рисуем исходное число
-plt.quiver(0, 0, z.real, z.imag, 
-           color='blue', 
-           scale=1.5, 
-           scale_units='xy', 
-           angles='xy',
-           width=0.004,
-           label='Исходное число (1 + √3i)')
-
-# Рисуем все корни
-for k, angle in enumerate(angles):
-    root = r_root * (np.cos(angle) + 1j * np.sin(angle))
-    plt.quiver(0, 0, root.real, root.imag, 
-               color='red', 
-               scale=1.5, 
-               scale_units='xy', 
-               angles='xy',
-               width=0.004,
-               label=f'Корень {k+1}' if k == 0 else None)
-    
-    # Подпись угла
-    plt.text(root.real * 1.1, root.imag * 1.1, 
-             f'{np.degrees(angle):.1f}°',
-             color='red',
-             fontsize=8)
-
-# Рисуем окружность радиуса корня
-circle = plt.Circle((0, 0), r_root, color='gray', fill=False, linestyle='--', alpha=0.5)
-ax.add_patch(circle)
-
-plt.title(f'Корни {n}-й степени из (1 + √3i)')
-plt.xlabel('Re')
-plt.ylabel('Im')
-plt.grid(True, alpha=0.3)
-plt.legend()
-plt.axis('equal')
-plt.show()
-
-# Вывод корней в тригонометрической форме
-print("\n=== КОРНИ В ТРИГОНОМЕТРИЧЕСКОЙ ФОРМЕ ===")
-for k, angle in enumerate(angles):
-    deg_angle = np.degrees(angle)
-    print(f"z_{k+1} = {r_root:.4f} (cos({deg_angle:.1f}°) + i·sin({deg_angle:.1f}°))")
 ```
 
-### ***Кейс 3***: Анализ посещаемости занятий
-Набор данных: [скачать набор данных](cases/case3/Посещяемость занятий.csv)  
+### ***Задача 3***: Разложить многочлен x⁴ - 2x³ + x² - 8x - 12 на неприводимые множители
 
-В кейсе анализируется посещаемость студентов из файла `Посещаемость занятий.csv`. Строятся три типа графиков:
-- **Scatter plot**: Диаграмма рассеяния посещаемости по группам.
-- **Bar plot**: Столбчатая диаграмма средней посещаемоти по группам.
-- **Box plot**: Коробчатая диаграмма распределения посещаемости по граппам.
 
-Графики:  
+
+Ответ: <img width="600" height="600" alt="image" src="https://github.com/user-attachments/assets/65369e63-0651-4dce-a04a-3342bf27d8fa" />
+
 
 
 Исходный код:  
 ```python
-# file: task_03_polynomial_factorization_simplified.py
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -168,39 +110,7 @@ for z in complex_pairs:
 print("\n=== РАЗЛОЖЕНИЕ НА НЕПРИВОДИМЫЕ МНОЖИТЕЛИ ===")
 print("P(x) = " + " · ".join(factors))
 
-# === ВИЗУАЛИЗАЦИЯ ===
-plt.figure(figsize=(10, 6))
 
-# Генерируем данные для графика
-x = np.linspace(-2, 4, 500)
-y = np.polyval(coefficients, x)
-
-# Строим график
-plt.plot(x, y, 'b-', linewidth=2, label='P(x) = x⁴ - 2x³ + x² - 8x - 12')
-
-# Отмечаем действительные корни
-for r in real_roots:
-    plt.plot(r, 0, 'ro', markersize=8, label=f'Корень x={r:.2f}')
-
-# Настройка графика
-plt.axhline(y=0, color='k', linestyle='-', alpha=0.3)
-plt.axvline(x=0, color='k', linestyle='-', alpha=0.3)
-plt.grid(True, alpha=0.3)
-plt.title('График многочлена и его корни')
-plt.xlabel('x')
-plt.ylabel('P(x)')
-plt.legend()
-plt.xlim(-2.5, 4.5)
-plt.ylim(-40, 40)
-
-plt.show()
-
-# Проверка разложения
-recovered_coeffs = np.polyfromroots(roots)
-print("\n=== ПРОВЕРКА ===")
-print(f"Коэффициенты исходного многочлена: {coefficients}")
-print(f"Коэффициенты восстановленного: {recovered_coeffs}")
-print(f"Совпадают? {np.allclose(coefficients, recovered_coeffs)}")
 ```
 
 ### ***Кейс 4***: Обработка результатов тестирования
