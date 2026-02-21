@@ -8,9 +8,7 @@
 - **Box plot**: Коробчатая диаграмма распределения оценок по дисциплинам.
 
 Графики:  
-<img src="cases/case1/scatter_plot.png" width="600">
-<img src="cases/case1/bar_plot.png" width="600">
-<img src="cases/case1/box_plot.png" width="600">
+
 
 Исходный код:  
 ```python
@@ -80,96 +78,83 @@ plt.show()
 - **Box plot**: Коробчатая диаграмма распределения ответов на первый вопрос.
 
 Графики:  
-<img src="cases/case2/scatter_plot.png" width="600">
-<img src="cases/case2/bar_plot.png" width="600">
-<img src="cases/case2/box_plot.png" width="600">
 
 Исходный код:  
 ```python
-import pandas as pd
+# file: task_02_complex_trigonometric_simplified.py
+import numpy as np
 import matplotlib.pyplot as plt
 
-def scatter_plot(df, show_plots=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    groups = df['Группа'].unique()
-    colors = plt.cm.tab10.colors[:len(groups)]
+print("=== Задача 2: Корень шестой степени в тригонометрической форме ===")
+print("Вычислить: ∛(1 + √3i) (на самом деле корень 6-й степени)")
 
-    for i, group in enumerate(groups):
-        subset = df[df['Группа'] == group]
-        ax.scatter(
-            subset['Группа'],
-            subset['Вопрос 1'],
-            label=group,
-            color=colors[i],
-            alpha=0.8
-        )
+# Исходное комплексное число
+z = 1 + 1j * np.sqrt(3)
 
-    ax.set_title('Зависимость Вопрос 1 от Группа')
-    ax.set_xlabel('Группа')
-    ax.set_ylabel('Вопрос 1')
-    ax.legend()
-    ax.grid(True)
-    fig.savefig('scatter_plot.png')
-    if show_plots:
-        plt.show()
-    plt.close(fig)
+# Вычисляем модуль и аргумент
+r = np.abs(z)  # модуль
+theta = np.angle(z)  # аргумент в радианах
 
-def bar_plot(df, show_plots=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    avg_q1_by_group = df.groupby('Группа')['Вопрос 1'].mean()
-    avg_q1_by_group.plot(kind='bar', ax=ax, color='skyblue')
+# Параметры для корня 6-й степени
+n = 6
+r_root = r ** (1/n)
+angles = [(theta + 2 * np.pi * k) / n for k in range(n)]
 
-    for p in ax.patches:
-        ax.annotate(f'{p.get_height():.2f}', (p.get_x() + p.get_width() / 2., p.get_height()),
-                    ha='center', va='center', xytext=(0, 10), textcoords='offset points')
+# Вывод результатов
+print(f"\nИсходное число: {z.real:.2f} + {z.imag:.2f}i")
+print(f"Модуль: {r:.2f}, Аргумент: {np.degrees(theta):.2f}°")
+print(f"\nКорень {n}-й степени:")
+print(f"Модуль корня: {r_root:.4f}")
 
-    ax.set_title('Среднее Вопрос 1 по Группа')
-    ax.set_xlabel('Группа')
-    ax.set_ylabel('Среднее Вопрос 1')
-    ax.tick_params(axis='x', rotation=45)
-    ax.grid(axis='y')
-    fig.savefig('bar_plot.png')
-    if show_plots:
-        plt.show()
-    plt.close(fig)
+# Визуализация
+plt.figure(figsize=(8, 8))
+ax = plt.gca()
+ax.axhline(y=0, color='k', linestyle='-', alpha=0.3)
+ax.axvline(x=0, color='k', linestyle='-', alpha=0.3)
 
-def box_plot(df, show_plots=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    df.boxplot(column='Вопрос 1', by='Группа', ax=ax, grid=False, patch_artist=True, boxprops=dict(facecolor='lightblue'))
-    ax.set_title('Распределение Вопрос 1 по Группа')
-    fig.suptitle('')
-    ax.set_xlabel('Группа')
-    ax.set_ylabel('Вопрос 1')
-    fig.savefig('box_plot.png')
-    if show_plots:
-        plt.show()
-    plt.close(fig)
+# Рисуем исходное число
+plt.quiver(0, 0, z.real, z.imag, 
+           color='blue', 
+           scale=1.5, 
+           scale_units='xy', 
+           angles='xy',
+           width=0.004,
+           label='Исходное число (1 + √3i)')
 
-def main(show_plots = False):
-    file_path = "Результаты анкетирования.csv"
+# Рисуем все корни
+for k, angle in enumerate(angles):
+    root = r_root * (np.cos(angle) + 1j * np.sin(angle))
+    plt.quiver(0, 0, root.real, root.imag, 
+               color='red', 
+               scale=1.5, 
+               scale_units='xy', 
+               angles='xy',
+               width=0.004,
+               label=f'Корень {k+1}' if k == 0 else None)
+    
+    # Подпись угла
+    plt.text(root.real * 1.1, root.imag * 1.1, 
+             f'{np.degrees(angle):.1f}°',
+             color='red',
+             fontsize=8)
 
-    try:
-        df = pd.read_csv(
-            file_path,
-            usecols=["ФИО", "Группа", "Вопрос 1", "Вопрос 2", "Вопрос 3"]
-        )
-    except ValueError as e:
-        raise ValueError(f"Ошибка при чтении CSV: {e}. Проверьте названия столбцов.")
+# Рисуем окружность радиуса корня
+circle = plt.Circle((0, 0), r_root, color='gray', fill=False, linestyle='--', alpha=0.5)
+ax.add_patch(circle)
 
-    df["Группа"] = pd.to_numeric(df["Группа"], errors='coerce')
-    df["Вопрос 1"] = pd.to_numeric(df["Вопрос 1"], errors='coerce')
-    df["Вопрос 2"] = pd.to_numeric(df["Вопрос 2"], errors='coerce')
-    df["Вопрос 3"] = pd.to_numeric(df["Вопрос 3"], errors='coerce')
-    df = df.dropna()
+plt.title(f'Корни {n}-й степени из (1 + √3i)')
+plt.xlabel('Re')
+plt.ylabel('Im')
+plt.grid(True, alpha=0.3)
+plt.legend()
+plt.axis('equal')
+plt.show()
 
-    print(f"Форма данных: {df.shape}")
-
-    scatter_plot(df, show_plots)
-    bar_plot(df, show_plots)
-    box_plot(df, show_plots)
-
-if __name__ == "__main__":
-    main(show_plots = True)
+# Вывод корней в тригонометрической форме
+print("\n=== КОРНИ В ТРИГОНОМЕТРИЧЕСКОЙ ФОРМЕ ===")
+for k, angle in enumerate(angles):
+    deg_angle = np.degrees(angle)
+    print(f"z_{k+1} = {r_root:.4f} (cos({deg_angle:.1f}°) + i·sin({deg_angle:.1f}°))")
 ```
 
 ### ***Кейс 3***: Анализ посещаемости занятий
@@ -181,94 +166,88 @@ if __name__ == "__main__":
 - **Box plot**: Коробчатая диаграмма распределения посещаемости по граппам.
 
 Графики:  
-<img src="cases/case3/scatter_plot.png" width="600">
-<img src="cases/case3/bar_plot.png" width="600">
-<img src="cases/case3/box_plot.png" width="600">
+
 
 Исходный код:  
 ```python
-import pandas as pd
+# file: task_03_polynomial_factorization_simplified.py
+import numpy as np
 import matplotlib.pyplot as plt
 
-def scatter_plot(df, show_plots=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    groups = df['Группа'].unique()
-    colors = plt.cm.tab10.colors[:len(groups)]
+print("=== Задача 3: Разложение многочлена на неприводимые множители ===")
+print("x⁴ - 2x³ + x² - 8x - 12")
 
-    for i, group in enumerate(groups):
-        subset = df[df['Группа'] == group]
-        ax.scatter(
-            subset['Группа'],
-            subset['Присутствие'],
-            label=group,
-            color=colors[i],
-            alpha=0.8
-        )
+# Коэффициенты многочлена (от старшей степени к младшей)
+coefficients = [1, -2, 1, -8, -12]
 
-    ax.set_title('Зависимость Присутствие от Группа')
-    ax.set_xlabel('Группа')
-    ax.set_ylabel('Присутствие (0 - Нет, 1 - Да)')
-    ax.legend()
-    ax.grid(True)
-    fig.savefig('scatter_plot.png')
-    if show_plots:
-        plt.show()
-    plt.close(fig)
+# Нахождение корней
+roots = np.roots(coefficients)
 
-def bar_plot(df, show_plots=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    avg_attendance_by_group = df.groupby('Группа')['Присутствие'].mean()
-    avg_attendance_by_group.plot(kind='bar', ax=ax, color='skyblue')
+# Классификация корней
+real_roots = []
+complex_pairs = []
 
-    for p in ax.patches:
-        ax.annotate(f'{p.get_height():.2f}', (p.get_x() + p.get_width() / 2., p.get_height()),
-                    ha='center', va='center', xytext=(0, 10), textcoords='offset points')
+for root in roots:
+    if np.isclose(root.imag, 0, atol=1e-5):
+        real_roots.append(root.real)
+    else:
+        # Добавляем только один из сопряженных корней
+        if all(not np.isclose(root, c, atol=1e-5) for c in complex_pairs):
+            complex_pairs.append(root)
 
-    ax.set_title('Среднее Присутствие по Группа')
-    ax.set_xlabel('Группа')
-    ax.set_ylabel('Среднее Присутствие')
-    ax.tick_params(axis='x', rotation=45)
-    ax.grid(axis='y')
-    fig.savefig('bar_plot.png')
-    if show_plots:
-        plt.show()
-    plt.close(fig)
+# Формирование множителей
+factors = []
 
-def box_plot(df, show_plots=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    df.boxplot(column='Присутствие', by='Группа', ax=ax, grid=False, patch_artist=True, boxprops=dict(facecolor='lightblue'))
-    ax.set_title('Распределение Присутствие по Группа')
-    fig.suptitle('')  # Убираем автоматический заголовок от pandas
-    ax.set_xlabel('Группа')
-    ax.set_ylabel('Присутствие (0 - Нет, 1 - Да)')
-    fig.savefig('box_plot.png')
-    if show_plots:
-        plt.show()
-    plt.close(fig)
+# Добавляем линейные множители для действительных корней
+for r in real_roots:
+    sign = '-' if r >= 0 else '+'
+    factors.append(f"(x {sign} {abs(r):.2f})")
 
-def main(show_plots = False):
-    file_path = "Посещаемость занятий.csv"
+# Добавляем квадратичные множители для комплексных пар
+for z in complex_pairs:
+    if z.imag > 0:  # обрабатываем только верхнюю половину
+        a = -2 * z.real
+        b = abs(z) ** 2
+        sign_a = '-' if a >= 0 else '+'
+        factors.append(f"(x² {sign_a} {abs(a):.2f}x + {b:.2f})")
 
-    try:
-        df = pd.read_csv(
-            file_path,
-            usecols=["Дата", "Группа", "ФИО", "Присутствие"]
-        )
-    except ValueError as e:
-        raise ValueError(f"Ошибка при чтении CSV: {e}. Проверьте названия столбцов.")
+# Вывод разложения
+print("\n=== РАЗЛОЖЕНИЕ НА НЕПРИВОДИМЫЕ МНОЖИТЕЛИ ===")
+print("P(x) = " + " · ".join(factors))
 
-    df["Группа"] = pd.to_numeric(df["Группа"], errors='coerce')
-    df["Присутствие"] = df["Присутствие"].map({"Да": 1, "Нет": 0})
-    df = df.dropna()
+# === ВИЗУАЛИЗАЦИЯ ===
+plt.figure(figsize=(10, 6))
 
-    print(f"Форма данных: {df.shape}")
+# Генерируем данные для графика
+x = np.linspace(-2, 4, 500)
+y = np.polyval(coefficients, x)
 
-    scatter_plot(df, show_plots)
-    bar_plot(df, show_plots)
-    box_plot(df, show_plots)
+# Строим график
+plt.plot(x, y, 'b-', linewidth=2, label='P(x) = x⁴ - 2x³ + x² - 8x - 12')
 
-if __name__ == "__main__":
-    main(show_plots = True)
+# Отмечаем действительные корни
+for r in real_roots:
+    plt.plot(r, 0, 'ro', markersize=8, label=f'Корень x={r:.2f}')
+
+# Настройка графика
+plt.axhline(y=0, color='k', linestyle='-', alpha=0.3)
+plt.axvline(x=0, color='k', linestyle='-', alpha=0.3)
+plt.grid(True, alpha=0.3)
+plt.title('График многочлена и его корни')
+plt.xlabel('x')
+plt.ylabel('P(x)')
+plt.legend()
+plt.xlim(-2.5, 4.5)
+plt.ylim(-40, 40)
+
+plt.show()
+
+# Проверка разложения
+recovered_coeffs = np.polyfromroots(roots)
+print("\n=== ПРОВЕРКА ===")
+print(f"Коэффициенты исходного многочлена: {coefficients}")
+print(f"Коэффициенты восстановленного: {recovered_coeffs}")
+print(f"Совпадают? {np.allclose(coefficients, recovered_coeffs)}")
 ```
 
 ### ***Кейс 4***: Обработка результатов тестирования
@@ -286,95 +265,50 @@ if __name__ == "__main__":
 
 Исходный код:  
 ```python
-import pandas as pd
-import matplotlib.pyplot as plt
+# file: task_04_determinant_properties_simplified.py
+import numpy as np
 
-def scatter_plot(df, show_plots=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ids = df['ID'].unique()
+print("=== Задача 4: Вычисление определителя свойствами ===")
 
-    for i, id_val in enumerate(ids):
-        subset = df[df['ID'] == id_val]
-        ax.scatter(
-            subset['ID'],
-            subset['Correct_Count'],
-            label=id_val,
-            alpha=0.8
-        )
+# Исходная матрица
+A = np.array([
+    [5,  2, -5,  4,  5],
+    [9, -3, -7, -5, -5],
+    [-2, 4,  2,  8,  3],
+    [5,  3, -2,  8,  3],
+    [-4,-3,  4, -6, -3]
+], dtype=float)
 
-    ax.set_title('Зависимость Correct_Count от ID')
-    ax.set_xlabel('ID')
-    ax.set_ylabel('Correct_Count')
-    ax.legend()
-    ax.grid(True)
-    fig.savefig('scatter_plot.png')
-    if show_plots:
-        plt.show()
-    plt.close(fig)
+print("\n=== ИСХОДНАЯ МАТРИЦА ===")
+for row in A:
+    print("  ".join(f"{x:5.0f}" for x in row))
 
-def bar_plot(df, show_plots=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    avg_correct_by_id = df.groupby('ID')['Correct_Count'].mean()
-    avg_correct_by_id.plot(kind='bar', ax=ax, color='skyblue')
+# === Приведение к ступенчатому виду ===
+B = A.copy()
+n = B.shape[0]
+sign = 1  # Для учета перестановок строк
 
-    for p in ax.patches:
-        ax.annotate(f'{p.get_height():.2f}', (p.get_x() + p.get_width() / 2., p.get_height()),
-                    ha='center', va='center', xytext=(0, 10), textcoords='offset points')
+for i in range(n):
+    # Ищем ненулевой элемент в столбце
+    if B[i, i] == 0:
+        for j in range(i + 1, n):
+            if B[j, i] != 0:
+                B[[i, j]] = B[[j, i]]
+                sign *= -1
+                break
+    
+    # Обнуляем элементы под главным
+    for j in range(i + 1, n):
+        factor = B[j, i] / B[i, i]
+        B[j, :] -= factor * B[i, :]
 
-    ax.set_title('Среднее Correct_Count по ID')
-    ax.set_xlabel('ID')
-    ax.set_ylabel('Среднее Correct_Count')
-    ax.tick_params(axis='x', rotation=45)
-    ax.grid(axis='y')
-    fig.savefig('bar_plot.png')
-    if show_plots:
-        plt.show()
-    plt.close(fig)
+print("\n=== МАТРИЦА В СТУПЕНЧАТОМ ВИДЕ ===")
+for row in B:
+    print("  ".join(f"{x:5.2f}" for x in row))
 
-def box_plot(df, show_plots=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    df.boxplot(column='Correct_Count', by='ID', ax=ax, grid=False, patch_artist=True, boxprops=dict(facecolor='lightblue'))
-    ax.set_title('Распределение Correct_Count по ID')
-    fig.suptitle('')  # Убираем автоматический заголовок от pandas
-    ax.set_xlabel('ID')
-    ax.set_ylabel('Correct_Count')
-    fig.savefig('box_plot.png')
-    if show_plots:
-        plt.show()
-    plt.close(fig)
-
-def main(show_plots = False):
-    file_path = "Результаты тесирования.csv"
-
-    try:
-        df = pd.read_csv(
-            file_path,
-            usecols=["ФИО", "ID", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
-        )
-    except ValueError as e:
-        raise ValueError(f"Ошибка при чтении CSV: {e}. Проверьте названия столбцов.")
-
-    # Получаем правильные ответы из последней строки
-    correct_answers = df.iloc[-1, 2:]  # Столбцы с 1 по 10
-    df = df.iloc[:-1]  # Убираем последнюю строку с правильными ответами
-
-    # Преобразуем ответы в числа
-    df.iloc[:, 2:] = df.iloc[:, 2:].apply(pd.to_numeric, errors='coerce')
-
-    # Считаем количество правильных ответов
-    df["Correct_Count"] = (df.iloc[:, 2:] == correct_answers.values).sum(axis=1)
-
-    df["ID"] = pd.to_numeric(df["ID"], errors='coerce')
-    df = df.dropna()
-
-    print(f"Форма данных: {df.shape}")
-
-    scatter_plot(df, show_plots)
-    bar_plot(df, show_plots)
-    box_plot(df, show_plots)
-
-if __name__ == "__main__":
-    main(show_plots = True)
+# Вычисляем определитель
+det = np.prod(np.diag(B)) * sign
+print(f"\nОпределитель: {det:.2f}")
 ```
 
 ### ***Кейс 5***: Анализ научной активности
@@ -386,94 +320,90 @@ if __name__ == "__main__":
 - **Box plot**: Коробчатая диаграмма распределения годов по типам публикаций.
 
 Графики:  
-<img src="cases/case5/scatter_plot.png" width="600">
-<img src="cases/case5/bar_plot.png" width="600">
-<img src="cases/case5/box_plot.png" width="600">
+
 
 Исходный код:  
 ```python
-import pandas as pd
-import matplotlib.pyplot as plt
+# file: task_05_system_solution_simplified.py
+import numpy as np
 
-def scatter_plot(df, show_plots=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    types = df['Тип'].unique()
-    colors = plt.cm.tab10.colors[:len(types)]
+print("=== Задача 5: Система линейных уравнений ===")
+print("""
+Система:
+  x - 2y +  z = -1
+ 2x -  y - 4z =  7
+  x +  y - 2z =  5
+""")
 
-    for i, typ in enumerate(types):
-        subset = df[df['Тип'] == typ]
-        ax.scatter(
-            subset['Год'],
-            subset['Publication_Count'],
-            label=typ,
-            color=colors[i],
-            alpha=0.8
-        )
+# Матрица системы и вектор свободных членов
+A = np.array([
+    [1, -2,  1],
+    [2, -1, -4],
+    [1,  1, -2]
+])
+b = np.array([-1, 7, 5])
 
-    ax.set_title('Зависимость Publication_Count от Год по Тип')
-    ax.set_xlabel('Год')
-    ax.set_ylabel('Publication_Count')
-    ax.legend()
-    ax.grid(True)
-    fig.savefig('scatter_plot.png')
-    if show_plots:
-        plt.show()
-    plt.close(fig)
+# Проверка совместности (теорема Кронекера-Капелли)
+rank_A = np.linalg.matrix_rank(A)
+augmented = np.hstack([A, b.reshape(-1, 1)])
+rank_aug = np.linalg.matrix_rank(augmented)
 
-def bar_plot(df, show_plots=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    avg_year_by_type = df.groupby('Тип')['Год'].mean()
-    avg_year_by_type.plot(kind='bar', ax=ax, color='skyblue')
+print(f"Ранг матрицы A: {rank_A}")
+print(f"Ранг расширенной матрицы: {rank_aug}")
 
-    for p in ax.patches:
-        ax.annotate(f'{p.get_height():.2f}', (p.get_x() + p.get_width() / 2., p.get_height()),
-                    ha='center', va='center', xytext=(0, 10), textcoords='offset points')
+if rank_A == rank_aug:
+    print("Система совместна и имеет единственное решение")
+else:
+    print("Система несовместна (решений нет)")
 
-    ax.set_title('Среднее Год по Тип')
-    ax.set_xlabel('Тип')
-    ax.set_ylabel('Среднее Год')
-    ax.tick_params(axis='x', rotation=45)
-    ax.grid(axis='y')
-    fig.savefig('bar_plot.png')
-    if show_plots:
-        plt.show()
-    plt.close(fig)
+# === а) Метод Гаусса ===
+print("\n=== а) МЕТОД ГАУССА ===")
+aug = np.hstack([A.astype(float), b.reshape(-1, 1)])
+n_rows, n_cols = aug.shape
 
-def box_plot(df, show_plots=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    df.boxplot(column='Год', by='Тип', ax=ax, grid=False, patch_artist=True, boxprops=dict(facecolor='lightblue'))
-    ax.set_title('Распределение Год по Тип')
-    fig.suptitle('')  # Убираем автоматический заголовок от pandas
-    ax.set_xlabel('Тип')
-    ax.set_ylabel('Год')
-    fig.savefig('box_plot.png')
-    if show_plots:
-        plt.show()
-    plt.close(fig)
+# Прямой ход
+for i in range(n_rows):
+    pivot = aug[i, i]
+    aug[i, :] /= pivot
+    for j in range(i + 1, n_rows):
+        factor = aug[j, i]
+        aug[j, :] -= factor * aug[i, :]
 
-def main(show_plots = False):
-    file_path = "Научная активность.csv"
+# Обратный ход
+x = np.zeros(n_rows)
+for i in range(n_rows - 1, -1, -1):
+    x[i] = aug[i, -1] - np.dot(aug[i, i+1:n_cols-1], x[i+1:])
 
-    try:
-        df = pd.read_csv(
-            file_path,
-            usecols=["Авторы", "Название", "Тип", "Год"]
-        )
-    except ValueError as e:
-        raise ValueError(f"Ошибка при чтении CSV: {e}. Проверьте названия столбцов.")
+print(f"Решение (Гаусс): x={x[0]:.3f}, y={x[1]:.3f}, z={x[2]:.3f}")
 
-    df["Год"] = pd.to_numeric(df["Год"], errors='coerce')
-    df["Publication_Count"] = df.groupby('Авторы')['Авторы'].transform('count')
-    df = df.dropna()
+# === б) Метод Крамера ===
+print("\n=== б) МЕТОД КРАМЕРА ===")
+det_A = np.linalg.det(A)
+print(f"Определитель матрицы A: {det_A:.3f}")
 
-    print(f"Форма данных: {df.shape}")
+solutions = []
+for i in range(A.shape[1]):
+    A_i = A.copy()
+    A_i[:, i] = b
+    det_i = np.linalg.det(A_i)
+    solutions.append(det_i / det_A)
+    var_name = ['x', 'y', 'z'][i]
+    print(f"{var_name} = {det_i:.3f} / {det_A:.3f} = {solutions[i]:.3f}")
 
-    scatter_plot(df, show_plots)
-    bar_plot(df, show_plots)
-    box_plot(df, show_plots)
+print(f"Решение (Крамер): x={solutions[0]:.3f}, y={solutions[1]:.3f}, z={solutions[2]:.3f}")
 
-if __name__ == "__main__":
-    main(show_plots = True)
+# === в) Матричный метод ===
+print("\n=== в) МАТРИЧНЫЙ МЕТОД ===")
+A_inv = np.linalg.inv(A)
+solution = A_inv @ b
+print(f"Решение (матричный): x={solution[0]:.3f}, y={solution[1]:.3f}, z={solution[2]:.3f}")
+
+# === ПРОВЕРКА ===
+print("\n=== ПРОВЕРКА ===")
+check = A @ solution
+print(f"A·X = {check}")
+print(f"b   = {b}")
+print(f"Совпадает? {np.allclose(check, b)}")
 ```
 
 ### ***Кейс 6***: Обработка данных о трудоустройстве выпускников
@@ -491,88 +421,48 @@ if __name__ == "__main__":
 
 Исходный код:  
 ```python
-import pandas as pd
-import matplotlib.pyplot as plt
+# file: task_08_vector_decomposition_simplified.py
+import numpy as np
 
-def scatter_plot(df, show_plots=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    positions = df['Должность'].unique()
-    colors = plt.cm.tab10.colors[:len(positions)]
+print("=== Задача 8: Разложение вектора по базису ===")
 
-    for i, position in enumerate(positions):
-        subset = df[df['Должность'] == position]
-        ax.scatter(
-            subset['Специальность'],
-            subset['Зарплата'],
-            label=position,
-            color=colors[i],
-            alpha=0.8
-        )
+# Исходные векторы
+d = np.array([-2, 11, -2])
+a = np.array([1, 2, -3])
+b = np.array([3, -3, -2])
+c = np.array([-1, 4, 2])
 
-    ax.set_title('Зависимость Зарплата от Специальность по Должность')
-    ax.set_xlabel('Специальность')
-    ax.set_ylabel('Зарплата')
-    ax.legend()
-    ax.grid(True)
-    fig.savefig('scatter_plot.png')
-    if show_plots:
-        plt.show()
-    plt.close(fig)
+print(f"Вектор d: {d}")
+print(f"Базисные векторы:")
+print(f"  a = {a}")
+print(f"  b = {b}")
+print(f"  c = {c}")
 
-def bar_plot(df, show_plots=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    avg_salary_by_position = df.groupby('Должность')['Зарплата'].mean()
-    avg_salary_by_position.plot(kind='bar', ax=ax, color='skyblue')
+# Составляем матрицу базиса (столбцы - векторы a, b, c)
+A = np.column_stack((a, b, c))
 
-    for p in ax.patches:
-        ax.annotate(f'{p.get_height():.2f}', (p.get_x() + p.get_width() / 2., p.get_height()),
-                    ha='center', va='center', xytext=(0, 10), textcoords='offset points')
+# Проверяем, является ли набор базисом (определитель != 0)
+det_A = np.linalg.det(A)
+print(f"\nОпределитель матрицы базиса: {det_A:.2f}")
 
-    ax.set_title('Среднее Зарплата по Должность')
-    ax.set_xlabel('Должность')
-    ax.set_ylabel('Среднее Зарплата')
-    ax.tick_params(axis='x', rotation=45)
-    ax.grid(axis='y')
-    fig.savefig('bar_plot.png')
-    if show_plots:
-        plt.show()
-    plt.close(fig)
+if abs(det_A) > 1e-10:
+    # Решаем систему уравнений A * [x, y, z]^T = d
+    coords = np.linalg.solve(A, d)
 
-def box_plot(df, show_plots=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    df.boxplot(column='Зарплата', by='Должность', ax=ax, grid=False, patch_artist=True, boxprops=dict(facecolor='lightblue'))
-    ax.set_title('Распределение Зарплата по Должность')
-    fig.suptitle('')  # Убираем автоматический заголовок от pandas
-    ax.set_xlabel('Должность')
-    ax.set_ylabel('Зарплата')
-    fig.savefig('box_plot.png')
-    if show_plots:
-        plt.show()
-    plt.close(fig)
+    print(f"\nКоординаты вектора d в базисе (a, b, c):")
+    print(f"x = {coords[0]:.3f}")
+    print(f"y = {coords[1]:.3f}")
+    print(f"z = {coords[2]:.3f}")
 
-def main(show_plots = False):
-    file_path = "Трудоустройство.csv"
+    # Формула разложения
+    print(f"\nРазложение: d = ({coords[0]:.3f})a + ({coords[1]:.3f})b + ({coords[2]:.3f})c")
 
-    try:
-        df = pd.read_csv(
-            file_path,
-            usecols=["ФИО", "Специальность", "Место работы", "Должность", "Зарплата"]
-        )
-    except ValueError as e:
-        raise ValueError(f"Ошибка при чтении CSV: {e}. Проверьте названия столбцов.")
-
-    df["Специальность"] = pd.to_numeric(df["Специальность"], errors='coerce')
-    df["Зарплата"] = pd.to_numeric(df["Зарплата"], errors='coerce')
-    df = df.dropna()
-
-    print(f"Форма данных: {df.shape}")
-
-    scatter_plot(df, show_plots)
-    bar_plot(df, show_plots)
-    box_plot(df, show_plots)
-
-if __name__ == "__main__":
-    main(show_plots = True)
+    # Проверка
+    check = coords[0] * a + coords[1] * b + coords[2] * c
+    print(f"\nПроверка: {check}")
+    print(f"Совпадает с исходным d? {np.allclose(check, d)}")
+else:
+    print("\nВекторы линейно зависимы и не образуют базис. Разложение невозможно.")
 ```
 
 ### ***Кейс 7***: Анализ поведения пользователей в социальных сетях
@@ -590,86 +480,41 @@ if __name__ == "__main__":
 
 Исходный код:  
 ```python
-import pandas as pd
-import matplotlib.pyplot as plt
+# file: task_09_eigen_problem_simplified.py
+import numpy as np
 
-def scatter_plot(df, show_plots=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    genders = df['Gender'].unique()
-    colors = plt.cm.tab10.colors[:len(genders)]
+print("=== Задача 9: Собственные числа и векторы матрицы A ===")
 
-    for i, gender in enumerate(genders):
-        subset = df[df['Gender'] == gender]
-        ax.scatter(
-            subset['Age'],
-            subset['Total Time Spent'],
-            label=gender,
-            color=colors[i],
-            alpha=0.8
-        )
+# Определение матрицы
+A = np.array([
+    [2,  2, -1],
+    [0,  1, -1],
+    [0,  3,  5]
+])
 
-    ax.set_title('Зависимость Total Time Spent от Age по Gender')
-    ax.set_xlabel('Age')
-    ax.set_ylabel('Total Time Spent')
-    ax.legend()
-    ax.grid(True)
-    fig.savefig('scatter_plot.png')
-    if show_plots:
-        plt.show()
-    plt.close(fig)
+print("Матрица A:")
+print(A)
 
-def bar_plot(df, show_plots=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    avg_time_by_demo = df.groupby('Demographics')['Total Time Spent'].mean()
-    avg_time_by_demo.plot(kind='bar', ax=ax, color='skyblue')
+# Вычисление собственных значений и векторов
+eigenvalues, eigenvectors = np.linalg.eig(A)
 
-    for p in ax.patches:
-        ax.annotate(f'{p.get_height():.2f}', (p.get_x() + p.get_width() / 2., p.get_height()),
-                    ha='center', va='center', xytext=(0, 10), textcoords='offset points')
+print("\n=== СОБСТВЕННЫЕ ЗНАЧЕНИЯ ===")
+for i, val in enumerate(eigenvalues):
+    print(f"λ{i+1} = {val.real:.4f}{' + ' + str(val.imag)+'i' if val.imag != 0 else ''}")
 
-    ax.set_title('Среднее Total Time Spent по Demographics')
-    ax.set_xlabel('Demographics')
-    ax.set_ylabel('Среднее Total Time Spent')
-    ax.tick_params(axis='x', rotation=45)
-    ax.grid(axis='y')
-    fig.savefig('bar_plot.png')
-    if show_plots:
-        plt.show()
-    plt.close(fig)
+print("\n=== СОБСТВЕННЫЕ ВЕКТОРЫ ===")
+for i in range(len(eigenvalues)):
+    vec = eigenvectors[:, i]
+    print(f"Для λ{i+1} = {eigenvalues[i].real:.4f}:")
+    print(f"  [{vec[0].real:.4f}, {vec[1].real:.4f}, {vec[2].real:.4f}]^T")
+    
+    # Проверка
+    Av = A @ vec
+    lv = eigenvalues[i] * vec
+    print(f"  Проверка (A·v == λ·v): {np.allclose(Av, lv)}")
 
-def box_plot(df, show_plots=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    df.boxplot(column='Age', by='OS', ax=ax, grid=False, patch_artist=True, boxprops=dict(facecolor='lightblue'))
-    ax.set_title('Распределение Age по OS')
-    fig.suptitle('') 
-    ax.set_xlabel('OS')
-    ax.set_ylabel('Age')
-    fig.savefig('box_plot.png')
-    if show_plots:
-        plt.show()
-    plt.close(fig)
-
-def main(show_plots=False):
-    file_path = "social_networks.csv"
-
-    try:
-        df = pd.read_csv(
-            file_path,
-            usecols=["UserID", "Age", "Gender", "Demographics", "Total Time Spent", "OS"]
-        )
-    except ValueError as e:
-        raise ValueError(f"Ошибка при чтении CSV: {e}. Проверьте названия столбцов.")
-
-    df['Age'] = pd.to_numeric(df['Age'], errors='coerce')
-    df['Total Time Spent'] = pd.to_numeric(df['Total Time Spent'], errors='coerce')
-    df = df.dropna()
-
-    print(f"Форма данных: {df.shape}")
-
-    scatter_plot(df, show_plots)
-    bar_plot(df, show_plots)
-    box_plot(df, show_plots)
-
-if __name__ == "__main__":
-    main(show_plots=True)
+# Дополнительная информация
+print("\n=== ХАРАКТЕРИСТИЧЕСКИЙ МНОГОЧЛЕН ===")
+coeffs = np.poly(A)
+print(f"λ³ + ({coeffs[1]:.2f})λ² + ({coeffs[2]:.2f})λ + ({coeffs[3]:.2f}) = 0")
 ```
