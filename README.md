@@ -2,7 +2,8 @@
 ### ***Задача 1***: Вычислить: (2 - 2√3i) / (1 + i√3)
 
 Ответ:
-<img src="cases/case6/scatter_plot.png" width="600">
+<img width="600" height="600" alt="image" src="https://github.com/user-attachments/assets/abfa45e2-feda-4e76-bf45-464480d9a247" />
+
 
 Исходный код:  
 ```python
@@ -20,45 +21,6 @@ result = numerator / denominator
 # Вывод результата в алгебраической форме
 print(f"\nРезультат деления: {result.real:.3f} {'+' if result.imag >= 0 else '-'} {abs(result.imag):.3f}i")
 
-# === ВИЗУАЛИЗАЦИЯ ===
-plt.figure(figsize=(8, 6))
-ax = plt.gca()
-ax.axhline(y=0, color='k', linestyle='-', alpha=0.3)
-ax.axvline(x=0, color='k', linestyle='-', alpha=0.3)
-
-# Масштабируем оси для лучшего отображения
-plt.xlim(-2.5, 3)
-plt.ylim(-3.5, 2)
-
-# Рисуем комплексные числа как векторы
-vectors = [
-    (numerator, 'Числитель (2 - 2√3i)', 'blue', 1.0),
-    (denominator, 'Знаменатель (1 + i√3)', 'red', 1.2),
-    (result, 'Результат', 'green', 1.5)
-]
-
-for z, label, color, scale in vectors:
-    plt.quiver(0, 0, z.real, z.imag, 
-               color=color, 
-               scale=scale, 
-               scale_units='xy', 
-               angles='xy',
-               width=0.004,
-               label=label)
-
-# Добавляем подписи к концам векторов
-for z, label, color, _ in vectors:
-    plt.text(z.real * 1.05, z.imag * 1.05, 
-             f'({z.real:.2f}, {z.imag:.2f})',
-             color=color,
-             fontsize=9)
-
-plt.title('Комплексные числа на комплексной плоскости')
-plt.xlabel('Re')
-plt.ylabel('Im')
-plt.grid(True, alpha=0.3)
-plt.legend()
-plt.show()
 ```
 ### ***Кейс 2***: Обработка результатов анкетирования
 Набор данных: [скачать набор данных](cases/case2/Результаты анкетирования.csv)  
