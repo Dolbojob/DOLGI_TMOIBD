@@ -14,89 +14,62 @@
 
 Исходный код:  
 ```python
-import pandas as pd
+# file: task_01_complex_algebraic_simplified.py
+import numpy as np
 import matplotlib.pyplot as plt
 
-def scatter_plot(df, show_plots=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    groups = df['Группа'].unique()
-    colors = plt.cm.tab10.colors[:len(groups)]
+print("=== Задача 1: Действия в алгебраической форме ===")
+print("Вычислить: (2 - 2√3i) / (1 + i√3)")
 
-    for i, group in enumerate(groups):
-        subset = df[df['Группа'] == group]
-        ax.scatter(
-            subset['Семестр'],
-            subset['Оценка'],
-            label=group,
-            color=colors[i],
-            alpha=0.8
-        )
+# Определение комплексных чисел
+numerator = complex(2, -2 * np.sqrt(3))  # 2 - 2√3i
+denominator = complex(1, np.sqrt(3))     # 1 + i√3
 
-    ax.set_title('Зависимость Оценка от Семестр по Группа')
-    ax.set_xlabel('Семестр')
-    ax.set_ylabel('Оценка')
-    ax.legend()
-    ax.grid(True)
-    fig.savefig('scatter_plot.png')
-    if show_plots:
-        plt.show()
-    plt.close(fig)
+# Прямое деление комплексных чисел
+result = numerator / denominator
 
-def bar_plot(df, show_plots=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    avg_score_by_group = df.groupby('Группа')['Оценка'].mean()
-    avg_score_by_group.plot(kind='bar', ax=ax, color='skyblue')
+# Вывод результата в алгебраической форме
+print(f"\nРезультат деления: {result.real:.3f} {'+' if result.imag >= 0 else '-'} {abs(result.imag):.3f}i")
 
-    for p in ax.patches:
-        ax.annotate(f'{p.get_height():.2f}', (p.get_x() + p.get_width() / 2., p.get_height()),
-                    ha='center', va='center', xytext=(0, 10), textcoords='offset points')
+# === ВИЗУАЛИЗАЦИЯ ===
+plt.figure(figsize=(8, 6))
+ax = plt.gca()
+ax.axhline(y=0, color='k', linestyle='-', alpha=0.3)
+ax.axvline(x=0, color='k', linestyle='-', alpha=0.3)
 
-    ax.set_title('Среднее Оценка по Группа')
-    ax.set_xlabel('Группа')
-    ax.set_ylabel('Среднее Оценка')
-    ax.tick_params(axis='x', rotation=45)
-    ax.grid(axis='y')
-    fig.savefig('bar_plot.png')
-    if show_plots:
-        plt.show()
-    plt.close(fig)
+# Масштабируем оси для лучшего отображения
+plt.xlim(-2.5, 3)
+plt.ylim(-3.5, 2)
 
-def box_plot(df, show_plots=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    df.boxplot(column='Оценка', by='Дисциплина', ax=ax, grid=False, patch_artist=True, boxprops=dict(facecolor='lightblue'))
-    ax.set_title('Распределение Оценка по Дисциплина')
-    fig.suptitle('')
-    ax.set_xlabel('Дисциплина')
-    ax.set_ylabel('Оценка')
-    fig.savefig('box_plot.png')
-    if show_plots:
-        plt.show()
-    plt.close(fig)
+# Рисуем комплексные числа как векторы
+vectors = [
+    (numerator, 'Числитель (2 - 2√3i)', 'blue', 1.0),
+    (denominator, 'Знаменатель (1 + i√3)', 'red', 1.2),
+    (result, 'Результат', 'green', 1.5)
+]
 
-def main(show_plots = False):
-    file_path = "Успеваемость студентов.csv"
+for z, label, color, scale in vectors:
+    plt.quiver(0, 0, z.real, z.imag, 
+               color=color, 
+               scale=scale, 
+               scale_units='xy', 
+               angles='xy',
+               width=0.004,
+               label=label)
 
-    try:
-        df = pd.read_csv(
-            file_path,
-            usecols=["ФИО", "Группа", "Дисциплина", "Оценка", "Семестр"]
-        )
-    except ValueError as e:
-        raise ValueError(f"Ошибка при чтении CSV: {e}. Проверьте названия столбцов.")
+# Добавляем подписи к концам векторов
+for z, label, color, _ in vectors:
+    plt.text(z.real * 1.05, z.imag * 1.05, 
+             f'({z.real:.2f}, {z.imag:.2f})',
+             color=color,
+             fontsize=9)
 
-    df["Группа"] = pd.to_numeric(df["Группа"], errors='coerce')
-    df["Оценка"] = pd.to_numeric(df["Оценка"], errors='coerce')
-    df["Семестр"] = pd.to_numeric(df["Семестр"], errors='coerce')
-    df = df.dropna()
-
-    print(f"Форма данных: {df.shape}")
-
-    scatter_plot(df, show_plots)
-    bar_plot(df, show_plots)
-    box_plot(df, show_plots)
-
-if __name__ == "__main__":
-    main(show_plots = True)
+plt.title('Комплексные числа на комплексной плоскости')
+plt.xlabel('Re')
+plt.ylabel('Im')
+plt.grid(True, alpha=0.3)
+plt.legend()
+plt.show()
 ```
 ### ***Кейс 2***: Обработка результатов анкетирования
 Набор данных: [скачать набор данных](cases/case2/Результаты анкетирования.csv)  
@@ -699,462 +672,4 @@ def main(show_plots=False):
 
 if __name__ == "__main__":
     main(show_plots=True)
-```
-
-### ***Кейс 8***: Анализ транспортных потоков города
-Набор данных: [скачать набор данных](cases/case8/transport_traffic.csv)  
-
-В кейсе анализируется плотность транспортного трафика из файла `transport_traffic.csv`. Строятся три типа графиков:
-- **Scatter plot**: Диаграмма рассеяния часов и количества транспорта.
-- **Bar plot**: Столбчатая диаграмма среднего количества транспорта по дням недели.
-- **Box plot**: Коробчатая диаграмма плотности транспорта по количеству транспорта.
-
-Графики:  
-<img src="cases/case8/scatter_plot.png" width="600">
-<img src="cases/case8/bar_plot.png" width="600">
-<img src="cases/case8/box_plot.png" width="600">
-
-Исходный код:  
-```python
-import pandas as pd
-import matplotlib.pyplot as plt
-
-def scatter_plot(df, show_plots=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    df['Time_Num'] = pd.to_datetime(df['Time'], format='%I:%M:%S %p').dt.hour + pd.to_datetime(df['Time'], format='%I:%M:%S %p').dt.minute / 60.0
-    situations = df['Traffic Situation'].unique()
-    colors = plt.cm.tab10.colors[:len(situations)]
-
-    for i, situation in enumerate(situations):
-        subset = df[df['Traffic Situation'] == situation]
-        ax.scatter(
-            subset['Time_Num'],
-            subset['Total'],
-            label=situation,
-            color=colors[i],
-            alpha=0.8
-        )
-
-    ax.set_title('Зависимость Total от Time по Traffic Situation')
-    ax.set_xlabel('Time (часы)')
-    ax.set_ylabel('Total')
-    ax.legend()
-    ax.grid(True)
-    fig.savefig('scatter_plot.png')
-    if show_plots:
-        plt.show()
-    plt.close(fig)
-
-def bar_plot(df, show_plots=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    avg_total_by_day = df.groupby('Day of the week')['Total'].mean()
-    avg_total_by_day.plot(kind='bar', ax=ax, color='skyblue')
-
-    for p in ax.patches:
-        ax.annotate(f'{p.get_height():.2f}', (p.get_x() + p.get_width() / 2., p.get_height()),
-                    ha='center', va='center', xytext=(0, 10), textcoords='offset points')
-
-    ax.set_title('Среднее Total по Day of the week')
-    ax.set_xlabel('Day of the week')
-    ax.set_ylabel('Среднее Total')
-    ax.tick_params(axis='x', rotation=45)
-    ax.grid(axis='y')
-    fig.savefig('bar_plot.png')
-    if show_plots:
-        plt.show()
-    plt.close(fig)
-
-def box_plot(df, show_plots=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    box_props = {
-        'patch_artist': True,
-        'boxprops': dict(facecolor='lightblue'),
-        'medianprops': dict(color='red', linewidth=2),
-        'whiskerprops': dict(color='gray'),
-        'capprops': dict(color='gray')
-    }
-
-    df.boxplot(column='Total', by='Traffic Situation', ax=ax, grid=False, showfliers=False, **box_props)
-    ax.set_title('Распределение Total по Traffic Situation')
-    fig.suptitle('')
-    ax.set_xlabel('Traffic Situation')
-    ax.set_ylabel('Total')
-    fig.savefig('box_plot.png')
-    if show_plots:
-        plt.show()
-    plt.close(fig)
-
-def main(show_plots=False):
-    file_path = "transport_traffic.csv"
-
-    try:
-        df = pd.read_csv(file_path)
-    except ValueError as e:
-        raise ValueError(f"Ошибка при чтении CSV: {e}. Проверьте названия столбцов.")
-
-    df['Time'] = pd.to_datetime(df['Time'], format='%I:%M:%S %p', errors='coerce')
-    df['Date'] = pd.to_numeric(df['Date'], errors='coerce')
-    df['CarCount'] = pd.to_numeric(df['CarCount'], errors='coerce')
-    df['BikeCount'] = pd.to_numeric(df['BikeCount'], errors='coerce')
-    df['BusCount'] = pd.to_numeric(df['BusCount'], errors='coerce')
-    df['TruckCount'] = pd.to_numeric(df['TruckCount'], errors='coerce')
-    df['Total'] = pd.to_numeric(df['Total'], errors='coerce')
-    df = df.dropna()
-
-    print(f"Форма данных: {df.shape}")
-
-    scatter_plot(df, show_plots)
-    bar_plot(df, show_plots)
-    box_plot(df, show_plots)
-
-if __name__ == "__main__":
-    main(show_plots=True)
-```
-
-### ***Кейс 9***: Анализ покупательского поведения
-Набор данных: [скачать набор данных](cases/case9/sales_data.csv)  
-
-В кейсе анализируются показатели продаж из файла `sales_data.csv`. Строятся три типа графиков:
-- **Scatter plot**: Диаграмма рассеяния размера продаж от времени по регионам.
-- **Bar plot**: Столбчатая диаграмма средней величины продаж и поставщиков.
-- **Box plot**: Коробчатая диаграмма величины продаж по категориям товаров.
-
-Графики:  
-<img src="cases/case9/scatter_plot.png" width="600">
-<img src="cases/case9/bar_plot.png" width="600">
-<img src="cases/case9/box_plot.png" width="600">
-
-Исходный код:  
-```python
-import pandas as pd
-import matplotlib.pyplot as plt
-
-def scatter_plot(df, show_plots=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    df['Sale_Date_Num'] = (pd.to_datetime(df['Sale_Date']) - pd.to_datetime('2023-01-01')).dt.days
-
-    regions = df['Region'].unique()
-    colors = plt.cm.tab10.colors[:len(regions)]
-
-    for i, region in enumerate(regions):
-        subset = df[df['Region'] == region]
-        ax.scatter(
-            subset['Sale_Date_Num'],
-            subset['Sales_Amount'],
-            label=region,
-            color=colors[i],
-            alpha=0.6
-        )
-
-    ax.set_title('Зависимость Sales_Amount от Sale_Date по Region')
-    ax.set_xlabel('Sale_Date (дни с начала 2023)')
-    ax.set_ylabel('Sales_Amount')
-    ax.legend()
-    ax.grid(True)
-    fig.savefig('scatter_plot.png')
-    if show_plots:
-        plt.show()
-    plt.close(fig)
-
-def bar_plot(df, show_plots=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    avg_sales_by_rep = df.groupby('Sales_Rep')['Sales_Amount'].mean()
-    avg_sales_by_rep.plot(kind='bar', ax=ax, color='skyblue')
-
-    for p in ax.patches:
-        ax.annotate(f'{p.get_height():.2f}', (p.get_x() + p.get_width() / 2., p.get_height()),
-                    ha='center', va='center', xytext=(0, 10), textcoords='offset points')
-
-    ax.set_title('Среднее Sales_Amount по Sales_Rep')
-    ax.set_xlabel('Sales_Rep')
-    ax.set_ylabel('Среднее Sales_Amount')
-    ax.tick_params(axis='x', rotation=45)
-    ax.grid(axis='y')
-    fig.savefig('bar_plot.png')
-    if show_plots:
-        plt.show()
-    plt.close(fig)
-
-def box_plot(df, show_plots=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    box_props = {
-        'patch_artist': True,
-        'boxprops': dict(facecolor='lightblue'),
-        'medianprops': dict(color='red', linewidth=2),
-        'whiskerprops': dict(color='gray'),
-        'capprops': dict(color='gray')
-    }
-
-    df.boxplot(
-        column='Sales_Amount',
-        by='Product_Category',
-        ax=ax,
-        grid=False,
-        showfliers=False,
-        **box_props
-    )
-
-    ax.set_title('Распределение Sales_Amount по Product_Category')
-    fig.suptitle('')  # Убираем автоматический заголовок от pandas
-    ax.set_xlabel('Product_Category')
-    ax.set_ylabel('Sales_Amount')
-    fig.savefig('box_plot.png')
-    if show_plots:
-        plt.show()
-    plt.close(fig)
-
-def main(show_plots=False):
-    file_path = "sales_data.csv"
-
-    try:
-        df = pd.read_csv(
-            file_path,
-            usecols=["Product_ID", "Sale_Date", "Sales_Rep", "Region", "Sales_Amount", "Quantity_Sold",
-                     "Product_Category", "Unit_Cost", "Unit_Price", "Customer_Type", "Discount", "Payment_Method",
-                     "Sales_Channel", "Region_and_Sales_Rep"]
-        )
-    except ValueError as e:
-        raise ValueError(f"Ошибка при чтении CSV: {e}. Проверьте названия столбцов.")
-
-    df['Sale_Date'] = pd.to_datetime(df['Sale_Date'], errors='coerce')
-    df['Sales_Amount'] = pd.to_numeric(df['Sales_Amount'], errors='coerce')
-    df['Quantity_Sold'] = pd.to_numeric(df['Quantity_Sold'], errors='coerce')
-    df['Unit_Cost'] = pd.to_numeric(df['Unit_Cost'], errors='coerce')
-    df['Unit_Price'] = pd.to_numeric(df['Unit_Price'], errors='coerce')
-    df['Discount'] = pd.to_numeric(df['Discount'], errors='coerce')
-    df = df.dropna()
-
-    if df.empty:
-        raise ValueError("После очистки данных DataFrame пуст. Проверьте исходный файл.")
-
-    print(f"Форма данных: {df.shape}")
-
-    scatter_plot(df, show_plots)
-    bar_plot(df, show_plots)
-    box_plot(df, show_plots)
-
-if __name__ == "__main__":
-    main(show_plots=True)
-```
-
-### ***Кейс 10***: Анализ медицинских данных
-Набор данных: [скачать набор данных](cases/case10/enhanced_fever_medicine_recommendation.csv)  
-
-В кейсе анализируются медицинские показатели из файла `enhanced_fever_medicine_recommendation.csv`. Строятся три типа графиков:
-- **Scatter plot**: Диаграмма рассеяния температуры тела и возрастов.
-- **Bar plot**: Столбчатая диаграмма полов и количества человек.
-- **Box plot**: Коробчатая диаграмма тяжести болезни и температуры тела.
-
-Графики:  
-<img src="cases/case10/scatter_plot.png" width="600">
-<img src="cases/case10/bar_plot.png" width="600">
-<img src="cases/case10/box_plot.png" width="600">
-
-Исходный код:  
-```python
-import pandas as pd
-import matplotlib.pyplot as plt
-
-def scatter_plot(df, show=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.scatter(df['Age'], df['Temperature'], alpha=0.5)
-    ax.set_xlabel('Age')
-    ax.set_ylabel('Temperature')
-    ax.set_title('Age vs Temperature')
-    plt.savefig('scatter_plot.png')
-    if show:
-        plt.show()
-    plt.close(fig)
-
-def bar_plot(df, show=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    df['Gender'].value_counts().plot(kind='bar', ax=ax)
-    ax.set_xlabel('Gender')
-    ax.set_ylabel('Count')
-    ax.set_title('Gender Distribution')
-    plt.savefig('bar_plot.png')
-    if show:
-        plt.show()
-    plt.close(fig)
-
-def box_plot(df, show=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    df.boxplot(column='Temperature', by='Fever_Severity', ax=ax)
-    ax.set_xlabel('Fever Severity')
-    ax.set_ylabel('Temperature')
-    ax.set_title('Temperature by Fever Severity')
-    plt.suptitle('')  # Remove default suptitle
-    plt.savefig('box_plot.png')
-    if show:
-        plt.show()
-    plt.close(fig)
-
-def main():
-    columns = ("Temperature", "Fever_Severity", "Age", "Gender", "Fatigue",
-               "Smoking_History", "Alcohol_Consumption", "Blood_Pressure",
-               "Previous_Medication", "Recommended_Medication")
-
-    df = pd.read_csv(filepath_or_buffer="enhanced_fever_medicine_recommendation.csv",
-                     usecols=columns)
-
-    df["Temperature"] = pd.to_numeric(df["Temperature"], errors="coerce")
-    df["Age"] = pd.to_numeric(df["Age"], errors="coerce")
-    df = df.dropna()
-
-    scatter_plot(df, True)
-    bar_plot(df, True)
-    box_plot(df, True)
-
-if __name__ == "__main__":
-    main()
-```
-
-### ***Кейс 11***: Анализ финансовых транзакций
-Набор данных: [скачать набор данных](cases/case11/bank_transactions_data_2.csv)  
-
-В кейсе анализируются банковские транзакции из файла `bank_transactions_data_2.csv`. Строятся три типа графиков:
-- **Scatter plot**: Диаграмма рассеяния возраста покупателей и величины их перевода.
-- **Bar plot**: Столбчатая диаграмма типов транзакций и их количества.
-- **Box plot**: Коробчатая диаграмма способов перевода и величины перевода.
-
-Графики:  
-<img src="cases/case11/scatter_plot.png" width="600">
-<img src="cases/case11/bar_plot.png" width="600">
-<img src="cases/case11/box_plot.png" width="600">
-
-Исходный код:  
-```python
-import pandas as pd
-import matplotlib.pyplot as plt
-
-def scatter_plot(df, show=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.scatter(df['CustomerAge'], df['TransactionAmount'], alpha=0.5)
-    ax.set_xlabel('Customer Age')
-    ax.set_ylabel('Transaction Amount')
-    ax.set_title('Customer Age vs Transaction Amount')
-    plt.savefig('scatter_plot.png')
-    if show:
-        plt.show()
-    plt.close(fig)
-
-def bar_plot(df, show=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    df['TransactionType'].value_counts().plot(kind='bar', ax=ax)
-    ax.set_xlabel('Transaction Type')
-    ax.set_ylabel('Count')
-    ax.set_title('Transaction Type Distribution')
-    plt.savefig('bar_plot.png')
-    if show:
-        plt.show()
-    plt.close(fig)
-
-def box_plot(df, show=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    df.boxplot(column='TransactionAmount', by='Channel', ax=ax)
-    ax.set_xlabel('Channel')
-    ax.set_ylabel('Transaction Amount')
-    ax.set_title('Transaction Amount by Channel')
-    plt.suptitle('')  # Remove default suptitle
-    plt.savefig('box_plot.png')
-    if show:
-        plt.show()
-    plt.close(fig)
-
-def main():
-    columns = ("TransactionID", "AccountID", "TransactionAmount", "TransactionDate", "TransactionType",
-               "Channel", "CustomerAge", "AccountBalance", "PreviousTransactionDate")
-
-    df = pd.read_csv(filepath_or_buffer="bank_transactions_data_2.csv",
-                     usecols=columns)
-
-    df["TransactionAmount"] = pd.to_numeric(df["TransactionAmount"], errors="coerce")
-    df["TransactionDate"] = pd.to_datetime(df["TransactionDate"], errors="coerce")
-    df["CustomerAge"] = pd.to_numeric(df["CustomerAge"], errors="coerce")
-    df["AccountBalance"] = pd.to_numeric(df["AccountBalance"], errors="coerce")
-    df["PreviousTransactionDate"] = pd.to_datetime(df["PreviousTransactionDate"], errors="coerce")
-    df = df.dropna()
-
-    scatter_plot(df, True)
-    bar_plot(df, True)
-    box_plot(df, True)
-
-if __name__ == "__main__":
-    main()
-```
-
-### ***Кейс 12***: Анализ данных о погоде
-Набор данных: [скачать набор данных](cases/case12/seattle-weather.csv)  
-
-В кейсе анализируются погодные данные из файла `seattle-weather.csv`. Строятся три типа графиков:
-- **Scatter plot**: Диаграмма рассеяния максимальной температуры (temp_max) vs минимальной температуры (temp_min).
-- **Bar plot**: Столбчатая диаграмма количества записей по месяцам (извлечено из даты).
-- **Box plot**: Коробчатая диаграмма максимальной температуры по месяцам.
-
-Графики:  
-<img src="cases/case12/scatter_plot.png" width="600">
-<img src="cases/case12/bar_plot.png" width="600">
-<img src="cases/case12/box_plot.png" width="600">
-
-Исходный код:  
-```python
-import pandas as pd
-import matplotlib.pyplot as plt
-
-def scatter_plot(df, show=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.scatter(df['temp_max'], df['temp_min'], alpha=0.5)
-    ax.set_xlabel('Max Temperature')
-    ax.set_ylabel('Min Temperature')
-    ax.set_title('Scatter Plot: Max Temperature vs Min Temperature')
-    plt.savefig('scatter_plot.png')
-    if show:
-        plt.show()
-    plt.close(fig)
-
-def bar_plot(df, show=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    df['month'] = df['date'].dt.month
-    df['month'].value_counts().sort_index().plot(kind='bar', ax=ax)
-    ax.set_xlabel('Month')
-    ax.set_ylabel('Count')
-    ax.set_title('Bar Plot: Record Count by Month')
-    plt.savefig('bar_plot.png')
-    if show:
-        plt.show()
-    plt.close(fig)
-
-def box_plot(df, show=False):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    df['month'] = df['date'].dt.month
-    df.boxplot(column='temp_max', by='month', ax=ax)
-    ax.set_xlabel('Month')
-    ax.set_ylabel('Max Temperature')
-    ax.set_title('Box Plot: Max Temperature by Month')
-    plt.suptitle('')  # Убираем стандартный заголовок
-    plt.savefig('box_plot.png')
-    if show:
-        plt.show()
-    plt.close(fig)
-
-def main():
-    df = pd.read_csv("enhanced_fever_medicine_recommendation.csv")
-    
-    df["date"] = pd.to_datetime(df["date"], errors="coerce")
-    df["precipitation"] = pd.to_numeric(df["precipitation"], errors="coerce")
-    df["temp_max"] = pd.to_numeric(df["temp_max"], errors="coerce")
-    df["temp_min"] = pd.to_numeric(df["temp_min"], errors="coerce")
-    df["wind"] = pd.to_numeric(df["wind"], errors="coerce")
-    df = df.dropna()
-    
-    scatter_plot(df, True)
-    bar_plot(df, True)
-    box_plot(df, True)
-
-if __name__ == "__main__":
-    main()
 ```
