@@ -1,23 +1,5 @@
-# 📐 Линейная алгебра — Вариант 1
-### Решение всех задач с пояснениями и кодом на Python (NumPy)
-
-> **Инструкция по запуску кода:** скопируй блоки кода в Jupyter Notebook или `.py` файл и запусти.  
-> Для работы нужны библиотеки: `numpy`, `matplotlib`, `scipy`
-
----
-
-## 📦 Импорт библиотек
-
-```python
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
-from scipy.linalg import lu
-from mpl_toolkits.mplot3d import Axes3D
-
-plt.rcParams['figure.figsize'] = (8, 6)
-plt.rcParams['font.size'] = 12
-```
+#  Линейная алгебра — Вариант 1
+### Решение задач с кодом на Python (NumPy)
 
 ---
 
@@ -26,24 +8,6 @@ plt.rcParams['font.size'] = 12
 ### Условие
 
 $$\frac{2 - 2\sqrt{3}\,i}{1 + i\sqrt{3}}$$
-
-### Решение (вручную)
-
-Умножим числитель и знаменатель на сопряжённое знаменателя $\overline{(1+i\sqrt{3})} = 1 - i\sqrt{3}$:
-
-$$\frac{(2-2\sqrt{3}\,i)(1-i\sqrt{3})}{(1+i\sqrt{3})(1-i\sqrt{3})}$$
-
-**Знаменатель:**
-
-$$|1+i\sqrt{3}|^2 = 1^2 + (\sqrt{3})^2 = 1 + 3 = 4$$
-
-**Числитель:**
-
-$$(2-2\sqrt{3}\,i)(1-i\sqrt{3}) = 2\cdot1 + 2\cdot(-i\sqrt{3}) + (-2\sqrt{3}\,i)\cdot1 + (-2\sqrt{3}\,i)(-i\sqrt{3})$$
-
-$$= 2 - 2i\sqrt{3} - 2\sqrt{3}\,i + 2\sqrt{3}\cdot\sqrt{3}\cdot i^2\cdot(-1)$$
-
-$$= 2 - 4i\sqrt{3} - 2\cdot3 = 2 - 4i\sqrt{3} - 6 = -4 - 4i\sqrt{3}$$
 
 **Результат:**
 
